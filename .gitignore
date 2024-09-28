@@ -1,0 +1,48 @@
+# Ignore nearly all files without file extensions;
+# they are nearly invariably binaries that are easy
+# to accidentally check in
+# Make sure we can still check in files like Makefile though
+*
+!*/
+!*.*
+!CODEOWNERS
+!Dockerfile
+!LICENSE
+!Makefile
+!githooks/*
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+dist/**
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Temporary files
+*.sw?
+*~
+
+# Mac
+.DS_Store
+
+# Go work
+go.work
+go.work.sum
+
+.vscode
+.env
+.envrc
+.idea
+
+# certificates
+*.cer
+*.crt
+*.pfx
+
