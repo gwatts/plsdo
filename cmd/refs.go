@@ -13,6 +13,7 @@ import (
 
 const (
 	fmtJson   = "json"
+	fmtCsv    = "csv"
 	fmtPretty = "print"
 )
 
@@ -44,6 +45,8 @@ var refsCmd = &cobra.Command{
 		switch format {
 		case fmtJson:
 			cobra.CheckErr(m.Json(os.Stdout))
+		case fmtCsv:
+			cobra.CheckErr(m.Csv(os.Stdout))
 		case fmtPretty:
 			m.PrettyPrint(os.Stdout, style)
 		default:

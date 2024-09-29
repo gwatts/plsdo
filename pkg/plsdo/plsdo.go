@@ -5,11 +5,13 @@ package plsdo
 
 import (
 	"cmp"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/alecthomas/chroma/v2/formatters"
@@ -134,6 +136,29 @@ func (m *Matcher) Json(w io.Writer) error {
 		}
 	}
 	return nil
+}
+
+func (m *Matcher) Csv(w io.Writer) error {
+	m.sort()
+	enc := csv.NewWriter(w)
+	header := []string{"filename", "line", "enclosing_method", "source"}
+	if err := enc.Write(header); err != nil {
+		return err
+	}
+
+	for _, me := range m.refs {
+		entry := []string{
+			me.Filename,
+			strconv.Itoa(me.Line),
+			me.fmtEnc(),
+			me.PrettySource,
+		}
+		if err := enc.Write(entry); err != nil {
+			return err
+		}
+	}
+	enc.Flush()
+	return enc.Error()
 }
 
 // FindFuncReferences scans the module in the current working directory for all
