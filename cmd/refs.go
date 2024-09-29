@@ -35,6 +35,7 @@ var refsCmd = &cobra.Command{
 		if debug {
 			m.DebugWriter = os.Stderr
 		}
+		defer m.Close()
 		cobra.CheckErr(err)
 
 		pkgPath, patterns := args[0], args[1:]

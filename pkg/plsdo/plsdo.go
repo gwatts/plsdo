@@ -20,12 +20,13 @@ import (
 )
 
 type matchEntry struct {
-	Filename    string
-	Line        int
-	EncRecvType string
-	EncRecvName string
-	EncFuncName string
-	Context     string
+	Filename     string
+	Line         int
+	EncRecvType  string
+	EncRecvName  string
+	EncFuncName  string
+	OrgSource    string
+	PrettySource string
 }
 
 func (me matchEntry) fmtEnc() string {
@@ -89,7 +90,7 @@ func (m *Matcher) PrettyPrint(w io.Writer, style string) {
 			fmt.Fprintln(w, "...")
 		}
 
-		formattedLines := strings.Split(ref.Context, "\n")
+		formattedLines := strings.Split(ref.PrettySource, "\n")
 		if style != "" && style != "none" {
 			// Set up the lexer, formatter, and style for syntax highlighting
 			lexer := lexers.Get("go")
@@ -106,7 +107,7 @@ func (m *Matcher) PrettyPrint(w io.Writer, style string) {
 
 			// Tokenize the input code
 			var buf strings.Builder
-			iterator, err := lexer.Tokenise(nil, ref.Context)
+			iterator, err := lexer.Tokenise(nil, ref.PrettySource)
 			if err == nil {
 				err = formatter.Format(&buf, style, iterator)
 			}
@@ -169,17 +170,18 @@ func (m *Matcher) FindFuncReferences(pkgName string, patterns ...string) error {
 				return err
 			}
 
-			context, err := ap.ExtractFullCall(match.Filename, match.StartLine, match.StartCharacter)
+			src, err := ap.ExtractFullCall(match.Filename, match.StartLine, match.StartCharacter)
 			if err != nil {
 				return err
 			}
 			me := matchEntry{
-				Filename:    match.Filename,
-				Line:        match.StartLine,
-				EncRecvType: receiverType,
-				EncRecvName: receiverName,
-				EncFuncName: functionName,
-				Context:     context,
+				Filename:     match.Filename,
+				Line:         match.StartLine,
+				EncRecvType:  receiverType,
+				EncRecvName:  receiverName,
+				EncFuncName:  functionName,
+				OrgSource:    src,
+				PrettySource: ast.Format(src),
 			}
 			m.refs = append(m.refs, me)
 		}

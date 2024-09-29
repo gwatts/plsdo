@@ -6,10 +6,12 @@ Mostly written by an LLM.
 package ast
 
 import (
+	"bytes"
 	"fmt"
 	"go/ast"
 	"go/build"
 	"go/parser"
+	"go/printer"
 	"go/token"
 	"os"
 	"path/filepath"
@@ -233,7 +235,6 @@ func (a *ASTProcessor) FindFuncDefinitions(pkgPath string, funcPattern ...string
 func (a *ASTProcessor) isFuncMatch(node *ast.FuncDecl, funcPatterns ...string) bool {
 	recvType, _ := extractRecvType(node)
 	recvType = strings.TrimPrefix(recvType, "*")
-	//recvType := strings.TrimPrefix(extractRecvType(node), "*")
 	funcName := node.Name.Name
 	for _, pattern := range funcPatterns {
 		matchFunc := pattern
@@ -306,4 +307,20 @@ func exprToString(expr ast.Expr) string {
 	default:
 		return fmt.Sprintf("%T", expr)
 	}
+}
+
+// Format re-formats the supplied source code.
+func Format(source string) string {
+	fset := token.NewFileSet()
+	expr, err := parser.ParseExprFrom(fset, "", []byte(source), 0)
+	if err != nil {
+		return source
+	}
+	var buf bytes.Buffer
+	prt := &printer.Config{
+		Mode:     printer.UseSpaces,
+		Tabwidth: 4,
+	}
+	prt.Fprint(&buf, fset, expr)
+	return buf.String()
 }
